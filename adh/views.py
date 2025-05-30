@@ -5,7 +5,8 @@ from .models import Activite
 from .serializers import JsonActiviteSerializer
 
 def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+    context = {"activite": "famille2025"}
+    return render(request, "adh/index.html", context)
 
 @csrf_exempt
 def json_activite_list(request):

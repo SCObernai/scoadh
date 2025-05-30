@@ -1,0 +1,48 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>My test page</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="{% static 'adh/adh_cart.js' %}"></script>
+  </head>
+  <body>
+        <table width="100%"><tr><td width="50%">
+        <p>
+            <h3>Zone de debug / simulation : </h3>
+            <i>Activités définies dans la base de test : famille2025, grind2025 </i><br/>
+            <label for="acts">Choisir une activité</label>
+            <select name="acts" id="adh_variante_activite" onchange="adhLoadActivite()">
+                <option value="famille2025">famille2025</option>
+                <option value="grind2025">grind2025</option>
+            </select> 
+            <button title="load activite" onclick="adhLoadActivite()">LOAD</button>
+            <div  class="adh_debug_panel"></div>   
+        </p>
+        </td><td width="50%">
+         <p>
+            <h3>Résumé du panier</h3>
+            <div id="adh_cart_summary"></div>
+            <br/>
+            <i>
+            A intégrer où on veut sur le site (ou pas) <br/>
+            N'apparaît que si le panier n'est pas vide
+            </i>
+        </p>
+        </td></tr></table>
+        <hr/>        
+        <p>
+            <h3>Zone d'affichage des variantes de l'activité </h3>
+            <i>(=sur la page de l'activité du site)</i>
+            <div id="adh_products_display"></div>     
+        </p>
+        <hr/>          
+        <p>
+            <h3>Zone d'affichage du panier</h3>
+            <i>incrustée ou peut être déportée dans une autre page du site</i>
+            <div id="adh_cart_display"></div>
+        </p>
+  </body>
+</html>
