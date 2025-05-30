@@ -291,7 +291,7 @@ function showActivite(activite) {
     $.getJSON('/adh/json_activite/'+activite, function(data) {
         //var text = JSON.stringify(data);
         //$(".adh_debug_panel").text(text);
-        let nom_act=`${data.periode.label} - ${data.nom}`;
+        let nom_act=`${data.nom} - ${data.periode.label}`;
         let html_head=`
         <table border="1px" cellspacing="0px" cellpadding="5px">
             <thead>
@@ -315,7 +315,7 @@ function showActivite(activite) {
                     <td>${variante.description}</td>
                     <td>${getAdhBirthString(pba.min_birth,pba.max_birth)}</td>
                     <td align="right">${getAdhPriceString(pba.min_price,pba.max_price)}</td>
-                    <td align="center"><button enabled="${(variante.ouverte && pba.max_price)?true:false}" class="btn btn-primary" data-id="${pba.id}" data-price="${pba.max_price}" data-title="${nom_act} - ${variante.description}">AJOUTER</button>
+                    <td align="center"><button enabled="${(variante.ouverte && pba.max_price)?true:false}" class="btn btn-primary" data-id="${pba.id}" data-price="${pba.max_price}" data-title="${nom_act} - ${variante.description}${getAdhTitleBirthString(pba.min_birth,pba.max_birth)}">AJOUTER</button>
                 </tr>`;
                 html_body+=body_part;
             }
@@ -352,6 +352,16 @@ function getAdhBirthString(min_birth, max_birth) {
     if (min_birth)
         return `après le ${formatBirthString(min_birth)}`;
     return `avant le ${formatBirthString(max_birth)}`;
+}
+
+function getAdhTitleBirthString(min_birth, max_birth) {
+    if (!min_birth && !max_birth) 
+        return "";
+    if (min_birth && max_birth) 
+        return `- né(e) entre le ${formatBirthString(min_birth)} et le ${formatBirthString(max_birth)}`;
+    if (min_birth)
+        return `- né(e) après le ${formatBirthString(min_birth)}`;
+    return `- né(e) avant le ${formatBirthString(max_birth)}`;
 }
 
 function formatBirthString(birth) {
