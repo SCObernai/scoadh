@@ -249,7 +249,7 @@ function showOrUpdateCartDisplay() {
     table.border="1px";
     table.cellSpacing="0px";
     table.cellPadding="5px";
-    table.className = " ";
+    table.className = "my_adh_cart_table";
 
     let thead =  document.createElement('thead');
 
