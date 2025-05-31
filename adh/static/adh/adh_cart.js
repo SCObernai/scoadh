@@ -244,7 +244,7 @@ function showOrUpdateCartDisplay() {
         total_tr.appendChild(title_total_td);
         let price_total_td=document.createElement("td");
         price_total_td.align="right";
-        price_total_td.textContent=getAdhCartContentSummary()[1]+" €";
+        price_total_td.innerHTML=getAdhCartContentSummary()[1]+"&nbsp;€";
         total_tr.appendChild(price_total_td);
         let actions_total_td=document.createElement("td");
         actions_total_td.align="center";
