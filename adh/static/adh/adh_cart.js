@@ -10,6 +10,14 @@ $( document ).ready(function() {
 
 let adh_cart = {};
 
+function spaceToNbsp(text) {
+    //  console.log("spaceToNbsp - text="+text)
+    if (text) {
+        //console.log(`spaceToNbsp - return ${text.replace(/ /g, "&nbsp;")}`)
+        return text.replace(/ /g, "&nbsp;");
+    }
+    return "";
+}
 function initAdhOnLoad() {
     //console.log("initAdhOnLoad - start ");
     if (localStorage.getItem("adh_cart")) {
@@ -144,21 +152,20 @@ function emptyAndHideCart() {
 function updateAdhCartBanner() {
     let adh_summary=getAdhCartContentSummary();
     let adh_cart_summary=document.getElementById("adh_cart_summary");
+    let adh_cart_displayed = cartIsDiplayed()
     if (adh_cart_summary) {
-        adh_cart_summary.style.position="relative";
         adh_cart_summary.innerHTML =`
             <a href="javascript:toggleCartDisplay()">
               <span class='adh_cart_icon'></span>
               ${adh_summary[1]}&nbsp;€
-            </a><div id="adh_cart_display" class="adh_cart_display"
-                style="display:${cartIsDiplayed()?"block":"none"};"></div> `;
+            </a><div id="adh_cart_display" class="my_adh_cart_display"/></div> `;
         if (adh_summary[0]>0) {
             adh_cart_summary.style.display="block";
         } else {
             adh_cart_summary.style.display="none";
         }
     }
-    if (cartIsDiplayed()) 
+    if (adh_cart_displayed) 
         showOrUpdateCartDisplay();
 }
 
@@ -239,7 +246,7 @@ function showOrUpdateCartDisplay() {
             let tr = document.createElement('tr');
 
             let title_td = document.createElement('td');
-            title_td.innerHTML = item.title;
+            title_td.innerHTML = spaceToNbsp(item.title);
             title_td.align="left";
             tr.appendChild(title_td);
 
@@ -345,6 +352,7 @@ function showActivite(activite) {
             for (var p in pricebyages) {
                 let pba=pricebyages[p];
                 let vardesc=spaceToNbsp(variante.description);
+                console.log("VAR DESC = "+vardesc)
                 let body_part=`
                 <tr>
                     <td>${vardesc}</td>
@@ -408,11 +416,4 @@ function formatBirthString(birth) {
     var m = date.getMonth() + 1; //Month from 0 to 11
     var y = date.getFullYear();
     return `${d <= 9 ? '0' + d : d}/${m<=9 ? '0' + m : m}/${y}`;
-}
-
-function spaceToNbsp(text) {
-    if (text) {
-        return text.replace(/ /g, "&nbsp;")
-    }
-    return ""
 }

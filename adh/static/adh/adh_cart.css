@@ -1,4 +1,4 @@
- .adh_cart_display  {
+ #adh_cart_display  {
     background-color: gold;
     display: inline-block;
     position: absolute;
@@ -7,3 +7,8 @@
     z-index: 10;
     opacity: 0.9;
 }
+
+#adh_cart_summary {
+    position: relative;
+}
+
