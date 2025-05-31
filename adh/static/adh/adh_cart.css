@@ -1,0 +1,8 @@
+ .adh_cart_display  {
+    background-color: gold;
+    display: inline-block;
+    position: absolute;
+    right: 100%;
+    top:20px;
+    z-index: 10;
+}

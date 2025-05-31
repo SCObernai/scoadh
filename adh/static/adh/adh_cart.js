@@ -135,11 +135,23 @@ function getAdhCartContentSummary() {
     return [adh_count, adh_sum]
 }
 
+function emptyAndHideCart() {
+    //console.log("emptyAndHideCart - start");
+    initOrClearAdhCart();
+    clearCartDisplay();
+    //console.log("emptyAndHideCart - done");
+}
 function updateAdhCartBanner() {
     let adh_summary=getAdhCartContentSummary();
     let adh_cart_summary=document.getElementById("adh_cart_summary");
     if (adh_cart_summary) {
-        adh_cart_summary.innerHTML =`<a href="javascript:showOrUpdateCartDisplay()">Contenu du panier</a> : ${adh_summary[0]} activités -  ${adh_summary[1]} €`;
+        adh_cart_summary.style.position="relative";
+        adh_cart_summary.innerHTML =`
+            <a href="javascript:toggleCartDisplay()">
+              <span class='adh_cart_icon'></span>
+              ${adh_summary[1]}&nbsp;€
+            </a><div id="adh_cart_display" class="adh_cart_display"
+                style="display:${cartIsDiplayed()?"block":"none"};"></div> `;
         if (adh_summary[0]>0) {
             adh_cart_summary.style.display="block";
         } else {
@@ -152,13 +164,35 @@ function updateAdhCartBanner() {
 
 function cartIsDiplayed() {
     let tbody = document.getElementById("adh_cart_display");
-    return tbody.lastElementChild
+    if (!tbody)
+        return false;
+    return tbody.lastElementChild;
+}
+
+function clearCartDisplay() {
+    let myNode = document.getElementById("adh_cart_display");
+    while (myNode.lastElementChild) {
+        myNode.removeChild(myNode.lastElementChild);
+    }
+    myNode.style.display="none";
+}
+
+function toggleCartDisplay() {
+    if (cartIsDiplayed()) {
+        clearCartDisplay();
+    } else {
+        showOrUpdateCartDisplay();
+    }
 }
 
 function showOrUpdateCartDisplay() {
     clearCartDisplay();
 
     let cart_div=document.getElementById("adh_cart_display");
+    if (!cart_div){
+        console.log("adh_cart_display div not found")
+        return; 
+    }
 
     let table =  document.createElement('table');
     table.border="1px";
@@ -264,20 +298,11 @@ function showOrUpdateCartDisplay() {
     hide_cart.href="javascript:clearCartDisplay()";
     hide_cart.text="MASQUER LE PANIER";
     cart_div.appendChild(hide_cart);
+
+    cart_div.style.display="block";
 }
 
-function clearCartDisplay() {
-    let myNode = document.getElementById("adh_cart_display");
-    while (myNode.lastElementChild) {
-        myNode.removeChild(myNode.lastElementChild);
-    }
-}
-function emptyAndHideCart() {
-    //console.log("emptyAndHideCart - start");
-    initOrClearAdhCart();
-    clearCartDisplay();
-    //console.log("emptyAndHideCart - done");
-}
+
 function buildAdhButton(item, text, func) {
     let btn=document.createElement("button");
     btn.textContent=text;
