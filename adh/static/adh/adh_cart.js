@@ -283,12 +283,16 @@ function buildAdhButton(item, text, func) {
     return btn;
 }
 function adhLoadActivite() {
+    //console.log("adhLoadActivite - start ");
     let activite=document.getElementById("adh_variante_activite").value;
+    //console.log("adhLoadActivite - showActivite ");
     showActivite(activite);
+    //console.log("adhLoadActivite - done ");
 }
 
 function showActivite(activite) {
-    $.getJSON('/adh/json_activite/'+activite, function(data) {
+    //console.log("showActivite - start ");
+    $.getJSON('https://adh.tib.cc/adh/json_activite/'+activite, function(data) {
         //var text = JSON.stringify(data);
         //$(".adh_debug_panel").text(text);
         let nom_act=`${data.nom} - ${data.periode.label}`;
@@ -315,7 +319,10 @@ function showActivite(activite) {
                     <td>${variante.description}</td>
                     <td>${getAdhBirthString(pba.min_birth,pba.max_birth)}</td>
                     <td align="right">${getAdhPriceString(pba.min_price,pba.max_price)}</td>
-                    <td align="center"><button enabled="${(variante.ouverte && pba.max_price)?true:false}" class="btn btn-primary" data-id="${pba.id}" data-price="${pba.max_price}" data-title="${nom_act} - ${variante.description}${getAdhTitleBirthString(pba.min_birth,pba.max_birth)}">AJOUTER</button>
+                    <td align="center">
+                      <button enabled="${(variante.ouverte && pba.max_price)?true:false}" class="btn btn-primary" 
+                        data-id="${pba.id}" data-price="${pba.max_price}" 
+                        data-title="${nom_act}&nbsp;-&nbsp;${variante.description}${getAdhTitleBirthString(pba.min_birth,pba.max_birth)}">AJOUTER</button>
                 </tr>`;
                 html_body+=body_part;
             }
@@ -328,20 +335,20 @@ function showActivite(activite) {
         document.getElementById("adh_products_display").innerHTML=html_head+html_body+html_tail;
         wireEvents();
     });
+    //console.log("showActivite - done ");
 }
-
 
 function getAdhPriceString(min_price, max_price) {
     if (!min_price && !max_price) 
         return "INCONNU";
     if (min_price && max_price) {
         if (min_price==max_price)
-            return  `${max_price} €`;
-        return `entre ${min_price} € et ${max_price} €`;
+            return  `${max_price}&nbsp;€`;
+        return `entre ${min_price}&nbsp;€ et ${max_price}&nbsp;€`;
     }
     if (min_price)
-        return `minimum ${min_price} €`;
-    return `maximum ${max_price} €`;
+        return `minimum ${min_price}&nbsp;€`;
+    return `maximum ${max_price}&nbsp;€`;
 }
 
 function getAdhBirthString(min_birth, max_birth) {
