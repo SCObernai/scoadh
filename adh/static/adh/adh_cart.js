@@ -244,7 +244,7 @@ function showOrUpdateCartDisplay() {
             tr.appendChild(title_td);
 
             let price_td = document.createElement("td");
-            price_td.textContent = item.price + " €";
+            price_td.innerHTML = item.price + "&nbsp;€";
             price_td.align="center";
             tr.appendChild(price_td);
 
