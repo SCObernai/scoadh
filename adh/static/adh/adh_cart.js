@@ -18,6 +18,24 @@ function spaceToNbsp(text) {
     }
     return "";
 }
+
+function adhEscapeString(text) {
+    //  console.log("escapeString - text="+text)
+    if (text) {
+        let ret=text.replace(/[\"&'\/<>]/g, 
+            function (a) {
+                return {
+                        '"': '&quot;', '&': '&amp;', "'": '&#39;',
+                        '/': '&#47;',  '<': '&lt;',  '>': '&gt;'
+                    }[a];
+            });
+        //console.log(`escapeString - return ${ret}`)
+        return ret;
+    }
+    return "";
+}
+
+
 function initAdhOnLoad() {
     //console.log("initAdhOnLoad - start ");
     if (localStorage.getItem("adh_cart")) {
@@ -231,7 +249,7 @@ function showOrUpdateCartDisplay() {
     table.border="1px";
     table.cellSpacing="0px";
     table.cellPadding="5px";
-    table.className = "my_adh_cart_table";
+    table.className = " ";
 
     let thead =  document.createElement('thead');
 
@@ -390,7 +408,7 @@ function showActivite(activite) {
                     <td align="center">
                       <button enabled="${(variante.ouverte && pba.max_price)?true:false}" class="btn btn-primary" 
                         data-id="${pba.id}" data-price="${pba.max_price}" 
-                        data-title="${nom_act}<br/>${vardesc}${spaceToNbsp(getAdhTitleBirthString(pba.min_birth,pba.max_birth))}">AJOUTER</button>
+                        data-title="${adhEscapeString(nom_act)}<br/>${adhEscapeString(vardesc)}${adhEscapeString(spaceToNbsp(getAdhTitleBirthString(pba.min_birth,pba.max_birth)))}">AJOUTER</button>
                 </tr>`;
                 html_body+=body_part;
             }
