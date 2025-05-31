@@ -239,7 +239,7 @@ function showOrUpdateCartDisplay() {
             let tr = document.createElement('tr');
 
             let title_td = document.createElement('td');
-            title_td.textContent = item.title;
+            title_td.innerHTML = item.title;
             title_td.align="left";
             tr.appendChild(title_td);
 
@@ -283,7 +283,7 @@ function showOrUpdateCartDisplay() {
         let actions_total_td=document.createElement("td");
         actions_total_td.align="center";
         let clr_btn=document.createElement("button");
-        clr_btn.textContent="x";
+        clr_btn.textContent="VIDER";
         clr_btn.onclick=emptyAndHideCart;
         actions_total_td.appendChild(clr_btn);
         total_tr.appendChild(actions_total_td);
@@ -325,7 +325,7 @@ function showActivite(activite) {
     $.getJSON('https://adh.tib.cc/adh/json_activite/'+activite, function(data) {
         //var text = JSON.stringify(data);
         //$(".adh_debug_panel").text(text);
-        let nom_act=`${data.nom} - ${data.periode.label}`;
+        let nom_act=spaceToNbsp(`${data.nom} - ${data.periode.label}`);
         let html_head=`
         <table border="1px" cellspacing="0px" cellpadding="5px">
             <thead>
@@ -344,15 +344,16 @@ function showActivite(activite) {
             let pricebyages = variante.pricebyage_set;
             for (var p in pricebyages) {
                 let pba=pricebyages[p];
+                let vardesc=spaceToNbsp(variante.description);
                 let body_part=`
                 <tr>
-                    <td>${variante.description}</td>
+                    <td>${vardesc}</td>
                     <td>${getAdhBirthString(pba.min_birth,pba.max_birth)}</td>
                     <td align="right">${getAdhPriceString(pba.min_price,pba.max_price)}</td>
                     <td align="center">
                       <button enabled="${(variante.ouverte && pba.max_price)?true:false}" class="btn btn-primary" 
                         data-id="${pba.id}" data-price="${pba.max_price}" 
-                        data-title="${nom_act}&nbsp;-&nbsp;${variante.description}${getAdhTitleBirthString(pba.min_birth,pba.max_birth)}">AJOUTER</button>
+                        data-title="${nom_act}<br/>${vardesc}${spaceToNbsp(getAdhTitleBirthString(pba.min_birth,pba.max_birth))}">AJOUTER</button>
                 </tr>`;
                 html_body+=body_part;
             }
@@ -395,10 +396,10 @@ function getAdhTitleBirthString(min_birth, max_birth) {
     if (!min_birth && !max_birth) 
         return "";
     if (min_birth && max_birth) 
-        return `- né(e) entre le ${formatBirthString(min_birth)} et le ${formatBirthString(max_birth)}`;
+        return `<br/>Né(e) entre le ${formatBirthString(min_birth)} et le ${formatBirthString(max_birth)}`;
     if (min_birth)
-        return `- né(e) après le ${formatBirthString(min_birth)}`;
-    return `- né(e) avant le ${formatBirthString(max_birth)}`;
+        return `<br/>Né(e) après le ${formatBirthString(min_birth)}`;
+    return `<br/>Né(e) avant le ${formatBirthString(max_birth)}`;
 }
 
 function formatBirthString(birth) {
@@ -407,4 +408,11 @@ function formatBirthString(birth) {
     var m = date.getMonth() + 1; //Month from 0 to 11
     var y = date.getFullYear();
     return `${d <= 9 ? '0' + d : d}/${m<=9 ? '0' + m : m}/${y}`;
+}
+
+function spaceToNbsp(text) {
+    if (text) {
+        return text.replace(/ /g, "&nbsp;")
+    }
+    return ""
 }
