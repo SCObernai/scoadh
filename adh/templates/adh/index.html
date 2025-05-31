@@ -7,7 +7,16 @@
     <title>My test page</title>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="{% static 'adh/adh_cart.js' %}"></script>
-    <link rel='stylesheet' href="{% static 'adh/adh_cart.css' %}" />
+    <style>
+.my_adh_cart_display {
+    background-color: gold;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  border: 3px solid #73AD21;
+}
+</style>
   </head>
   <body>
         <table width="100%"><tr><td width="50%">
@@ -40,10 +49,6 @@
             <div id="adh_products_display"></div>     
         </p>
         <hr/>          
-        <p>
-            <h3>Zone d'affichage du panier</h3>
-            <i>incrustée ou peut être déportée dans une autre page du site</i>
-            <div id="no_adh_cart_display" class="my_cart_display"></div>
-        </p>
+
   </body>
 </html>
