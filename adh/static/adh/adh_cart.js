@@ -91,6 +91,8 @@ function addAdhToCart(event) {
     persistAdhCartToStorage()
     console.log("adhAddToCart - updateAdhCartBanner ");
     updateAdhCartBanner();
+    console.log("adhAddToCart - stop propagation ");
+    event.stopImmediatePropagation()
     console.log("adhAddToCart - done ");
 }
 
@@ -111,6 +113,8 @@ function subAdhFromCart(event) {
         // ignore the substraction on non existent id
         //console.log("subAdhFromCart - cannot find entry ", id, "title ", title);
     }
+    console.log("subAdhFromCart - stop propagation ");
+    event.stopImmediatePropagation()
 }
 
 function remAdhFromCart(event) {
@@ -128,6 +132,16 @@ function remAdhFromCart(event) {
         // ignore the removal on non existent id
         //console.log("remAdhFromCart - cannot find entry ", id, "title ", title);
     }
+    console.log("remAdhFromCart - stop propagation ");
+    event.stopImmediatePropagation()
+}
+
+function clickEmptyCart(event) {
+    //console.log("clickEmptyCart - start");
+    emptyAndHideCart()
+    console.log("clickEmptyCart - stop propagation ");
+    event.stopImmediatePropagation()
+    //console.log("emptyAndHideCart - done");
 }
 
 function getAdhCartContentSummary() {
@@ -156,9 +170,9 @@ function updateAdhCartBanner() {
     if (adh_cart_summary) {
         adh_cart_summary.innerHTML =`
             <a href="javascript:toggleCartDisplay()">
-              <span class='adh_cart_icon'></span>
+              <span class='my_adh_cart_icon'></span>
               ${adh_summary[1]}&nbsp;€
-            </a><div id="adh_cart_display" class="my_adh_cart_display"/></div> `;
+            </a>`;
         if (adh_summary[0]>0) {
             adh_cart_summary.style.display="block";
         } else {
@@ -178,6 +192,7 @@ function cartIsDiplayed() {
 
 function clearCartDisplay() {
     let myNode = document.getElementById("adh_cart_display");
+    if (!myNode) return;
     while (myNode.lastElementChild) {
         myNode.removeChild(myNode.lastElementChild);
     }
@@ -185,6 +200,7 @@ function clearCartDisplay() {
 }
 
 function toggleCartDisplay() {
+    console.log("toggleCartDisplay")
     if (cartIsDiplayed()) {
         clearCartDisplay();
     } else {
@@ -197,14 +213,25 @@ function showOrUpdateCartDisplay() {
 
     let cart_div=document.getElementById("adh_cart_display");
     if (!cart_div){
-        console.log("adh_cart_display div not found")
-        return; 
+        cart_div=document.createElement("div");
+        cart_div.id="adh_cart_display";
+        cart_div.className="my_adh_cart_display";
+        cart_div.style.zIndex=100000;
+        cart_div.style.display="none";
+        cart_div.onclick=toggleCartDisplay;
+        document.body.appendChild(cart_div);
     }
+
+    let span =  document.createElement('span');
+    span.className = "my_adh_cart_title";
+    span.textContent="Mon panier";
+    cart_div.append(span);
 
     let table =  document.createElement('table');
     table.border="1px";
     table.cellSpacing="0px";
     table.cellPadding="5px";
+    table.className = "my_adh_cart_table";
 
     let thead =  document.createElement('thead');
 
@@ -291,7 +318,7 @@ function showOrUpdateCartDisplay() {
         actions_total_td.align="center";
         let clr_btn=document.createElement("button");
         clr_btn.textContent="VIDER";
-        clr_btn.onclick=emptyAndHideCart;
+        clr_btn.addEventListener("click", clickEmptyCart);
         actions_total_td.appendChild(clr_btn);
         total_tr.appendChild(actions_total_td);
 
@@ -301,10 +328,12 @@ function showOrUpdateCartDisplay() {
 
     cart_div.appendChild(table);
 
+    /*
     let hide_cart=document.createElement("a");
     hide_cart.href="javascript:clearCartDisplay()";
     hide_cart.text="MASQUER LE PANIER";
     cart_div.appendChild(hide_cart);
+    */
 
     cart_div.style.display="block";
 }
