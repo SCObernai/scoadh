@@ -250,7 +250,7 @@ function showOrUpdateCartDisplay() {
         actions_total_td.align="center";
         let clr_btn=document.createElement("button");
         clr_btn.textContent="x";
-        clr_btn.onclick=initOrClearAdhCart;
+        clr_btn.onclick=emptyAndHideCart;
         actions_total_td.appendChild(clr_btn);
         total_tr.appendChild(actions_total_td);
 
@@ -272,7 +272,12 @@ function clearCartDisplay() {
         myNode.removeChild(myNode.lastElementChild);
     }
 }
-
+function emptyAndHideCart() {
+    //console.log("emptyAndHideCart - start");
+    initOrClearAdhCart();
+    clearCartDisplay();
+    //console.log("emptyAndHideCart - done");
+}
 function buildAdhButton(item, text, func) {
     let btn=document.createElement("button");
     btn.textContent=text;
