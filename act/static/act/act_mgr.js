@@ -40,11 +40,13 @@ ScoAdhActivityManager.prototype.updateActDisplay = function (data) {
     let variantes=data.variantes;
     for (var v in variantes){
         let variante=variantes[v];
+        let vardesc=this.spaceToNbsp(data.nom);
+        if (variante.description!="") 
+            vardesc+="<br/><i><b>"+variante.description+"</b></i>";
+        if (this.debug) console.log("VAR DESC = "+vardesc);
         let pricebyages = variante.pricebyage_set;
         for (var p in pricebyages) {
             let pba=pricebyages[p];
-            let vardesc=this.spaceToNbsp(data.nom);
-            console.log("VAR DESC = "+vardesc)
             let body_part=`
             <tr>
                 <td>${vardesc}</td>
