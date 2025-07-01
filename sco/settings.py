@@ -131,7 +131,6 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 # CORS/CSRF 
 # https://github.com/adamchainz/django-cors-headers#setup
 CORS_ALLOWED_ORIGINS = [
