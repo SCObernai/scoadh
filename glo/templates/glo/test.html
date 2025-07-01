@@ -1,0 +1,62 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>My test page</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="{% static 'adh/cart_mgr.js' %}"></script>
+    <script src="{% static 'act/act_mgr.js' %}"></script>
+    <script>
+      let debug=false
+      let root_url="https://adh.tib.cc"
+      let cart_mgr=new ScoAdhCartManager(root_url, debug)
+      $( document ).ready(function(){cart_mgr.initOnDocReady()});
+      let act_mgr=new ScoAdhActivityManager(root_url, debug, cart_mgr)
+      $( document ).ready(function(){act_mgr.refillDropDown()});
+    </script>
+    <style>
+.my_adh_cart_display {
+    background-color: rgb(0, 255, 64);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  border: 3px solid #73AD21;
+}
+</style>
+  </head>
+  <body>
+        <table width="100%"><tr><td width="50%">
+        <p>
+            <h3>Zone de debug / simulation : </h3>
+            <i>Activités définies dans la base de test :  </i>
+            <button title="load activite" onclick="act_mgr.refillDropDown()">RELOAD DD</button><br/>
+            
+            <label for="acts">Choisir une activité</label>
+            <select name="acts" id="adh_variante_activite" onchange="act_mgr.adhLoadActivite()"></select> 
+            <button title="load activite" onclick="act_mgr.adhLoadActivite()">LOAD ACTIVITE</button>
+            <div  class="adh_debug_panel"></div>   
+        </p>
+        </td><td width="50%">
+         <p>
+            <h3>Résumé du panier</h3>
+            <div id="adh_cart_summary"></div>
+            <br/>
+            <i>
+            A intégrer où on veut sur le site (ou pas) <br/>
+            N'apparaît que si le panier n'est pas vide
+            </i>
+        </p>
+        </td></tr></table>
+        <hr/>        
+        <p>
+            <h3>Zone d'affichage des variantes de l'activité </h3>
+            <i>(=sur la page de l'activité du site)</i>
+            <div id="adh_products_display"></div>     
+        </p>
+        <hr/>          
+
+  </body>
+</html>
