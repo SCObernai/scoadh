@@ -8,10 +8,48 @@ from django.contrib.auth.models import User
 
 from lic.models import *
 
+
+class Jauge(models.Model):
+    saison = models.ForeignKey(
+        to=Saison,
+        on_delete=models.PROTECT,
+        null=False,
+        blank=False,
+        related_name="jauges",
+    )
+    nom = models.CharField(max_length=50, null=False, blank=False)
+    niveau_min = models.IntegerField(
+        validators=[MinValueValidator(1)], null=True, blank=True
+    )
+    niveau_max = models.IntegerField(
+        validators=[MinValueValidator(1)], null=False, blank=False
+    )
+    slug = models.SlugField(unique=True)
+
+    class Meta:
+        verbose_name = "Jauge"
+        verbose_name_plural = "Jauges"
+        constraints = [
+            UniqueConstraint(fields=["saison", "nom"], name="unique_jauge"),
+            CheckConstraint(
+                check=Q(
+                    Q(niveau_min__isnull=True) | Q(niveau_max__gte=F("niveau_min"))
+                ),
+                name="check_coherence_niveau_jauge",
+            ),
+        ]
+
+    # Text repr
+    def __str__(self):
+        return f"{self.saison}:{self.nom}"
+
+
 class Activite(models.Model):
     saison = models.ForeignKey(Saison, on_delete=models.PROTECT)
     nom = models.CharField(max_length=200, null=False, blank=False)
-    type_lic_req = models.ManyToManyField(to=TypeLicence, related_name="activites")
+    type_lic_req = models.ManyToManyField(
+        to=TypeLicence, related_name="activites", verbose_name="Licences admises"
+    )
     # TODO organisateur
     club_organisateur = models.ForeignKey(
         Club,
@@ -20,8 +58,10 @@ class Activite(models.Model):
         blank=False,
         related_name="activites",
     )
-    membership_required = models.BooleanField(default=False)
-    slug = models.SlugField(verbose_name="ID Panier")
+    membership_required = models.BooleanField(
+        default=False, verbose_name="Adhésion au club organisateur requise ?"
+    )
+    slug = models.SlugField(verbose_name="ID Panier", unique=True)
     date_debut = models.DateField(
         default=datetime.date.today,
         blank=True,
@@ -34,6 +74,13 @@ class Activite(models.Model):
         null=True,
         verbose_name="Date de fin de l'activité ",
     )
+    url_info = models.URLField(
+        blank=True,
+        null=True,
+        verbose_name="Page d'infos",
+    )
+    jauges = models.ManyToManyField(to=Jauge, related_name="activites")
+    multi_date = models.BooleanField(default=False, verbose_name="Multi dates ?")
 
     class Meta:
         verbose_name = "Activité"
@@ -65,10 +112,23 @@ class Activite(models.Model):
 
 
 class VarianteActivite(models.Model):
-    activite = models.ForeignKey(Activite, on_delete=models.PROTECT, related_name="variantes")
-    description = models.CharField(max_length=200, blank=True)
-    pass_allowed = models.BooleanField(default=False)
+    activite = models.ForeignKey(
+        Activite, on_delete=models.PROTECT, related_name="variantes"
+    )
+    description = models.CharField(
+        max_length=200, blank=True, verbose_name="Description de la variante"
+    )
     ouverte = models.BooleanField(default=False)
+    date_debut = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name="Début de la variante ",
+    )
+    date_fin = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name="Date de fin de la variante ",
+    )
 
     class Meta:
         verbose_name = "Variante d'activité"
@@ -77,6 +137,15 @@ class VarianteActivite(models.Model):
             UniqueConstraint(
                 fields=["activite", "description"], name="unique_variante"
             ),
+            CheckConstraint(
+                check=Q(
+                    Q(date_debut__isnull=True)
+                    | Q(date_fin__isnull=True)
+                    | Q(date_fin__gte=F("date_debut"))
+                ),
+                name="check_dates_variantes_deb_fin",
+            ),
+            # TODO check des dates par rapport à celles de l'activité
         ]
 
     # Text repr
@@ -104,6 +173,8 @@ class PriceByAge(models.Model):
     )
 
     class Meta:
+        verbose_name = "Tarif selon l'âge"
+        verbose_name_plural = "Tarifs selon les âges"
         constraints = [
             CheckConstraint(
                 check=Q(
@@ -129,12 +200,16 @@ class PriceByAge(models.Model):
             return None
         if self.variante.activite.date_fin is None:
             return None
-        if self.min_age is None: 
+        if self.min_age is None:
             return None
-        duree_sejour=self.variante.activite.date_fin-self.variante.activite.date_debut
-        deb_sej_age=PriceByAge.sub_years(self.variante.activite.date_debut, self.min_age)
-        one_day:datetime.timedelta=datetime.timedelta(days=1)
-        ret=deb_sej_age - one_day
+        duree_sejour = (
+            self.variante.activite.date_fin - self.variante.activite.date_debut
+        )
+        deb_sej_age = PriceByAge.sub_years(
+            self.variante.activite.date_debut, self.min_age
+        )
+        one_day: datetime.timedelta = datetime.timedelta(days=1)
+        ret = deb_sej_age - one_day
         return ret
 
     @property
@@ -143,11 +218,13 @@ class PriceByAge(models.Model):
             return None
         if self.variante.activite.date_fin is None:
             return None
-        if self.max_age is None: 
+        if self.max_age is None:
             return None
-        deb_sej_age=PriceByAge.sub_years(self.variante.activite.date_debut, self.max_age+1)
-        one_day:datetime.timedelta=datetime.timedelta(days=1)
-        ret=deb_sej_age 
+        deb_sej_age = PriceByAge.sub_years(
+            self.variante.activite.date_debut, self.max_age + 1
+        )
+        one_day: datetime.timedelta = datetime.timedelta(days=1)
+        ret = deb_sej_age
         return ret
 
     @staticmethod
@@ -158,7 +235,8 @@ class PriceByAge(models.Model):
             # 👇️ preserve calendar day (if Feb 29th doesn't exist
             # set to March 1st)
             return start_date + (
-                datetime.date(start_date.year - years, 1, 1) - datetime.date(start_date.year, 1, 1)
+                datetime.date(start_date.year - years, 1, 1)
+                - datetime.date(start_date.year, 1, 1)
             )
 
     def get_price_range_txt(self) -> str:
@@ -175,15 +253,15 @@ class PriceByAge(models.Model):
     def get_age_range_txt(self) -> str:
         if self.min_age is not None and self.max_age is not None:
             if self.min_age == self.max_age:
-                return f'{self.min_age} ans'
-            return f'entre {self.min_age} et {self.max_age} ans'
+                return f"{self.min_age} ans"
+            return f"entre {self.min_age} et {self.max_age} ans"
         elif self.max_age is not None:
-            return f'{self.max_age} maximum'
+            return f"{self.max_age} maximum"
         elif self.min_age is not None:
-            return f'{self.min_age} minimum'
+            return f"{self.min_age} minimum"
         else:
             return " sans contrainte d'age "
-        
+
     def get_birth_range_txt(self) -> str:
         if self.min_birth is not None and self.max_birth is not None:
             if self.min_birth == self.max_birth:

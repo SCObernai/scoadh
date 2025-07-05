@@ -1,7 +1,15 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+
+@csrf_exempt
+def system_js(request):
+    if request.method == "GET":
+        url=request.build_absolute_uri(reverse('system_js', args=()))
+        context = {"rootUrl": '/'.join(url.split('/')[:-2])}
+        return render(request, "glo/system.js", context, content_type="text/javascript")
 
 @login_required
 def index(request):

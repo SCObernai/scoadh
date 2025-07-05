@@ -16,8 +16,8 @@ class NestedTypeHabileteSerializer(serializers.HyperlinkedModelSerializer):
 class NestedDomaineSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = DomaineHabilete
-        fields = ['id', 'slug', 'nom', 'description', 'type_habilite']
-    type_habilite=NestedTypeHabileteSerializer()
+        fields = ['id', 'slug', 'nom', 'description', 'type_habilete']
+    type_habilete=NestedTypeHabileteSerializer()
 
 class NestedSystemeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

@@ -6,8 +6,10 @@ from django.template.defaultfilters import slugify
 import datetime
 from django.contrib.auth.models import User
 
-from hab.models import Habilete, HabiletePersonne
 
+from glo.models import Club
+from hab.models import Habilete, HabiletePersonne
+from pan.models import Paiement
 
 class Famille(models.Model):
     alias = models.CharField(max_length=150, blank=False, null=False, unique=True)
@@ -20,39 +22,42 @@ class Famille(models.Model):
     # TODO : fonction d'ajout de boss / supression de boss / check de boss
 
 
-class Club(models.Model):
-    alias = models.CharField(max_length=20, blank=False, null=False, unique=True)
-    nom = models.CharField(max_length=150, blank=False, null=False, unique=True)
-    federations = models.ManyToManyField("lic.Federation")
-    FAMILLE = "F"
-    INDIVIDUELLE = "I"
-    TYPE_ADHESION_CHOICES = [
-        (FAMILLE, "Famille"),
-        (INDIVIDUELLE, "Individuelle"),
-    ]
-    type_adhesion = models.CharField(
-        max_length=1,
-        choices=TYPE_ADHESION_CHOICES,
-        default=FAMILLE,
-    )
-    # TODO : url, validité de l'adhésion
 
+class TypeMembre(models.Model):
+    club = models.ForeignKey(to=Club, on_delete=models.PROTECT, null=False, blank=False)
+    nom = models.CharField(max_length=50, null=False, blank=False)
+    slug = models.SlugField(unique=True, null=False, blank=False)
+    
     class Meta:
-        ordering = ["alias"]
+        verbose_name = "Type de membre"
+        verbose_name_plural = "Types de membres"
+        constraints = [
+            UniqueConstraint(fields=["club", "nom"], name="unique_typemembre_club"),
+        ]
 
     # Text repr
     def __str__(self):
-        return f"{self.alias}"
-
-    @property
-    def affiliations(self) -> str:
-        return ", ".join(
-            self.federations.all().values_list("alias", flat=True).order_by("alias")
-        )
+        return f"{self.club}:{self.nom}"
     
 
+class Adhesion(models.Model):
+    personne = models.ForeignKey(to="Personne", on_delete=models.PROTECT, null=False, blank=False)
+    club = models.ForeignKey(to=Club, on_delete=models.PROTECT, null=False, blank=False)
+    date_adhesion = models.DateField(null=False, blank=False)
+    paiement = models.ForeignKey(to=Paiement, on_delete=models.RESTRICT)
+
+    class Meta:
+        verbose_name = "Adhésion au club"
+        verbose_name_plural = "Adhésions aux club"
+
+
+    # Text repr
+    def __str__(self):
+        return f"Adhesion de {self.personne} à {self.club} en date du {self.date_adhesion} -> {self.paiement}"
+    
 
 class Personne(models.Model):
+
     nom_naissance = models.CharField(max_length=150, blank=False, null=False, verbose_name="Nom de naissance")
     nom_usage = models.CharField(max_length=150, blank=True, null=True, verbose_name="Nom d'usage")
     prenoms_naissance = models.CharField(max_length=250, blank=False, null=False, verbose_name="Prénoms de naissance")

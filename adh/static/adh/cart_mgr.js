@@ -1,11 +1,34 @@
 
+
+
 function ScoAdhCartManager(rootUrl, debug) {
+    // ----- on fait un genre de singleton/mono instance par rootUrl
+    if (ScoAdhCartManager.prototype._instances) {
+        if (debug) console.log(`ScoAdhCartManager init - proto inst exists : ${ScoAdhCartManager.prototype._instances}`);
+        insts=ScoAdhCartManager.prototype._instances;
+    } else {
+        if (debug) console.log(`ScoAdhCartManager init - proto inst does NOT exist`);
+        insts={}
+        ScoAdhCartManager.prototype._instances=insts;
+    }
+    if (insts[rootUrl]) {
+        if (debug) console.log(`ScoAdhCartManager init - proto inst exists for rootUrl ${rootUrl}: ${insts[rootUrl]}`);
+        // -- ici on bypasse le constructeur si le "singleton" existe déjà
+        return insts[rootUrl];
+    } else {
+        if (debug) console.log(`ScoAdhCartManager init - proto inst does NOT exist for rootUrl ${rootUrl}`);    
+        insts[rootUrl]=this;
+    }
+
+    // -- c'est parti pour l'init !
+
     // Params
     this.debug=debug;
     this.rootUrl=rootUrl;
     // actual cart
     this.scoAdhCart={};
 }
+
 
 // Helpers with constants
 ScoAdhCartManager.prototype.getCartStorageKey = function () {

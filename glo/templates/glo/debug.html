@@ -6,15 +6,9 @@
     <meta charset="utf-8" />
     <title>My test page</title>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="{% static 'adh/cart_mgr.js' %}"></script>
-    <script src="{% static 'act/act_mgr.js' %}"></script>
+    <script src="{% url 'system_js' %}"></script>
     <script>
-      let debug=true
-      let root_url="http://127.0.0.1:8000"
-      let cart_mgr=new ScoAdhCartManager(root_url, debug)
-      $( document ).ready(function(){cart_mgr.initOnDocReady()});
-      let act_mgr=new ScoAdhActivityManager(root_url, debug, cart_mgr)
-      $( document ).ready(function(){act_mgr.refillDropDown()});
+      let sco_adh=new ScoAdh(false);
     </script>
     <style>
 .my_adh_cart_display {
@@ -32,11 +26,11 @@
         <p>
             <h3>Zone de debug / simulation : </h3>
             <i>Activités définies dans la base de test :  </i>
-            <button title="load activite" onclick="act_mgr.refillDropDown()">RELOAD DD</button><br/>
+            <button title="load activite" onclick="sco_adh.act_mgr.refillDropDown()">RELOAD DD</button><br/>
             
             <label for="acts">Choisir une activité</label>
-            <select name="acts" id="adh_variante_activite" onchange="act_mgr.adhLoadActivite()"></select> 
-            <button title="load activite" onclick="act_mgr.adhLoadActivite()">LOAD ACTIVITE</button>
+            <select name="acts" id="adh_variante_activite" onchange="sco_adh.act_mgr.adhLoadActivite()"></select> 
+            <button title="load activite" onclick="sco_adh.act_mgr.adhLoadActivite()">LOAD ACTIVITE</button>
             <div  class="adh_debug_panel"></div>   
         </p>
         </td><td width="50%">

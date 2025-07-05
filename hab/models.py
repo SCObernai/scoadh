@@ -15,11 +15,14 @@ class Sport(models.Model):
     # Text repr
     def __str__(self):
         return f"{self.nom}"
-
+    # Admin display
+    def admin_display(self):
+        return f"Sport «{self.nom.lower()}»"
 
 class TypeHabilete(models.Model):
     nom = models.CharField(max_length=50, blank=False, null=False)
     slug = models.SlugField(unique=True)
+    description = models.TextField(max_length=500, blank=True, null=True)
     class Meta:
         ordering = ["nom"]
         verbose_name = "Type d'habileté"
@@ -27,14 +30,18 @@ class TypeHabilete(models.Model):
     # Text repr
     def __str__(self):
         return f"{self.nom}"
-
+    # Admin display
+    def admin_display(self):
+        return f"Type d'habileté «{self.nom.lower()}»"
+    def admin_nb_domaines(self):
+        return f"{self.domaines_habiletes.count()}"
 
 class DomaineHabilete(models.Model):
     nom = models.CharField(max_length=50, blank=False, null=False)
     slug = models.SlugField(unique=True)
     description = models.TextField(max_length=500, blank=True, null=True)
-    type_habilite = models.ForeignKey(TypeHabilete, on_delete=models.PROTECT, 
-        blank=False, null=False, related_name="domaines_habiletes")
+    type_habilete = models.ForeignKey(TypeHabilete, on_delete=models.PROTECT, 
+        blank=False, null=False, related_name="domaines_habiletes", verbose_name="Type d'habileté")
     class Meta:
         verbose_name = "Domaine d'habileté"
         verbose_name_plural = "Domaines d'habiletés"
@@ -42,6 +49,11 @@ class DomaineHabilete(models.Model):
     # Text repr
     def __str__(self):
         return f"{self.nom}"
+    # Admin display
+    def admin_display(self):
+        return f"{self.type_habilete.nom} ► {self.nom}"
+    def admin_nb_habiletes(self):
+        return f"{self.habiletes.count()}"
 
 
 class Habilete(models.Model):
@@ -58,7 +70,6 @@ class Habilete(models.Model):
         blank=False,
         related_name="habiletes",
     )
-
     class Meta:
         verbose_name = "Habileté"
         verbose_name_plural = "Habiletés"
@@ -68,11 +79,16 @@ class Habilete(models.Model):
         ]
     # Text repr
     def __str__(self):
-        return f"{self.sport}:{self.nom}"
+        return f"{self.sport} ► {self.nom}"
+    # Admin display
+    def admin_display(self):
+        return f"{self.domaine.type_habilete.nom} ► {self.domaine.nom} ► {self.nom}"
+    
 
 class SystemeNotation(models.Model) :
     nom = models.CharField(max_length=20, blank=False, null=False)
     slug=models.SlugField(unique=True)
+    description = models.TextField(max_length=1000, blank=True, null=True)
     sport=models.ForeignKey(Sport,
         on_delete=models.PROTECT,
         null=False,
@@ -89,8 +105,10 @@ class SystemeNotation(models.Model) :
         ]
     # Text repr
     def __str__(self):
-        return f"{self.sport}:{self.nom}"
-
+        return f"{self.sport} ► {self.nom}"
+    # Admin display
+    def admin_display(self):
+        return f"{self.sport.nom} ► {self.nom}"
 
 class NiveauSportif(models.Model) :
     nom = models.CharField(max_length=40, blank=False, null=False)
@@ -102,7 +120,6 @@ class NiveauSportif(models.Model) :
         related_name="niveaux_sportifs",
     )
     habiletes = models.ManyToManyField(Habilete, related_name="niveaux_sportifs")
-
     class Meta:
         ordering = ["nom"]
         verbose_name_plural = "Niveaux sportifs"
@@ -112,7 +129,9 @@ class NiveauSportif(models.Model) :
     # Text repr
     def __str__(self):
         return f"{self.systeme}:{self.nom}"
-
+    # Admin display
+    def admin_display(self):
+        return f"{self.systeme.sport.nom} ► {self.systeme.nom} ► {self.nom}"
     # TODO : verrouiler pour que l'habilete soit dans le même sport que le systeme de notation
 
 

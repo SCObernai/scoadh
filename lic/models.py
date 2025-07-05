@@ -11,23 +11,27 @@ from adh.models import Club
 
 
 class Federation(models.Model):
-    alias = models.CharField(max_length=20, blank=False, null=False, unique=True)
-    nom = models.CharField(max_length=150, blank=False, null=False, unique=True)
-    # TODO url
+    nom = models.CharField(max_length=20, blank=False, null=False, unique=True)
+    description = models.CharField(max_length=150, blank=False, null=False, unique=True)
+    slug = models.SlugField(unique=True)
+    url=models.URLField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Fédération"
         verbose_name_plural = "Fédérations"
-        ordering = ["alias"]
+        ordering = ["nom"]
 
     # Text repr
     def __str__(self):
-        return f"{self.alias}"
+        return f"{self.nom}"
+    # Admin display
+    def admin_display(self):
+        return f"Fédération «{self.nom}»"    # Admin display
 
 
 class TypeLicence(models.Model):
-    alias = models.CharField(max_length=20, blank=False, null=False, unique=True)
-    nom = models.CharField(max_length=150, blank=False, null=False, unique=True)
+    nom = models.CharField(max_length=20, blank=False, null=False, unique=True)
+    description = models.CharField(max_length=150, blank=False, null=False, unique=True)
     federation = models.ForeignKey(
         Federation,
         on_delete=models.PROTECT,
@@ -35,25 +39,29 @@ class TypeLicence(models.Model):
         blank=False,
         related_name="types_licences",
     )
-    # TODO : url
+    slug = models.SlugField(unique=True)
+    url=models.URLField(null=True, blank=True)
 
     class Meta:
-        ordering = ["alias"]
+        ordering = ["nom"]
         verbose_name = "Type de licence"
         verbose_name_plural = "Types de licence"
 
     # Text repr
     def __str__(self):
-        return f"{self.federation.alias} : {self.alias}"
+        return f"{self.federation.nom} : {self.nom}"
 
     @property
     def full_name(self) -> str:
-        return f"{self.federation.alias} {self.alias}"
+        return f"{self.federation.nom} {self.nom}"
+    # ADMIN DISPLAY
+    def admin_display(self):
+        return f"{self.federation.nom} ► {self.nom} "
 
 
 class NiveauAssurance(models.Model):
-    alias = models.CharField(max_length=20, blank=False, null=False)
-    nom = models.CharField(max_length=150, blank=False, null=False)
+    nom = models.CharField(max_length=20, blank=False, null=False)
+    description = models.CharField(max_length=150, blank=False, null=False)
     type_licence = models.ForeignKey(
         TypeLicence,
         on_delete=models.PROTECT,
@@ -61,22 +69,24 @@ class NiveauAssurance(models.Model):
         blank=False,
         related_name="niveaux_assurances",
     )
-    # TODO : url
-
+    slug = models.SlugField(unique=True)
+    url=models.URLField(null=True, blank=True)
     class Meta:
-        ordering = ["alias"]
+        ordering = ["nom"]
         verbose_name = "Niveau d'assurance"
         verbose_name_plural = "Niveaux d'assurance"
         constraints = [
-            UniqueConstraint(fields=["alias", "type_licence"], name="niveau_assurance_uc"),
+            UniqueConstraint(fields=["nom", "type_licence"], name="niveau_assurance_uc"),
         ]
     # Text repr
     def __str__(self):
-        return f"{self.type_licence} : {self.alias}"
-
+        return f"{self.type_licence} : {self.nom}"
     @property
     def full_name(self) -> str:
-        return f"{self.type_licence} {self.alias}"
+        return f"{self.type_licence} {self.nom}"
+    # ADMIN DISPLAY
+    def admin_display(self):
+        return f"{self.type_licence.federation.nom} ► {self.type_licence.nom} ► {self.nom} "
 
 
 class IdentiteFederale(models.Model):
@@ -93,6 +103,7 @@ class IdentiteFederale(models.Model):
     numero_licence = models.CharField(max_length=20, blank=False, null=False)
 
     class Meta:
+        verbose_name = "Identité fédérale"
         verbose_name_plural = "Identités fédérales"
         constraints = [
             UniqueConstraint(
@@ -105,7 +116,10 @@ class IdentiteFederale(models.Model):
 
     # Text repr
     def __str__(self):
-        return f"{self.federation.alias} #{self.numero_licence} : {self.personne}"
+        return f"{self.federation.nom} #{self.numero_licence} : {self.personne}"
+    # ADMIN DISPLAY
+    def admin_display(self):
+        return f"{self.federation.nom} #{self.numero_licence} ► {self.personne} "
 
 
 class LicenceSaison(models.Model):
